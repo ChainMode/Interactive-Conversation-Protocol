@@ -1,5 +1,312 @@
-# Interactive Conversation Protocol Schema (2025-10-25)
+{/* Auto-generated from schema.json (icp://schemas/ctx-file/2025-10-25). DO NOT EDIT MANUALLY. */}
 
+# ICP Contextual Annotation File
 
+- **Schema ID:** `icp://schemas/ctx-file/2025-10-25`
+- **JSON Schema Draft:** 2020-12
+- **Title:** ICP Contextual Annotation File
+- **Description:** Schema for `.ctx` files — the core artifact of the ICP contextual annotation format.
 
+---
 
+## CTXFile (Root Object)
+
+The top-level object representing a `.ctx` file.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `meta` | [`Meta`](#meta) | ✅ | Metadata block for the `.ctx` file. |
+| `source` | [`Source`](#source) | ✅ | Describes the original content being annotated. |
+| `annotations` | `array<`[`Annotation`](#annotation)`>` | ✅ | Ordered list of annotations on the source content. |
+
+**Constraints:**
+- `additionalProperties: false`.
+
+---
+
+## `$defs`
+
+All reusable type definitions live under `$defs` in the JSON Schema.
+
+---
+
+### Meta
+
+Metadata block for the `.ctx` file.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `version` | `string` | ✅ | Protocol version identifier, e.g. `"1.0.0"`. |
+| `id` | `string` | ✅ | Unique identifier of this `.ctx` file. |
+| `created` | `string` (date-time) | ✅ | Creation timestamp in RFC 3339 format. |
+| `locale` | `string` | — | BCP-47 locale tag, e.g. `"zh-CN"`. |
+| `schema` | `string` | — | Schema URI reference, e.g. `"icp://schemas/ctx-file/2025-10-25"`. |
+
+**Constraints:**
+- `additionalProperties: false`.
+
+---
+
+### SourceMode
+
+Packaging mode for the source content.
+
+**Type:** `string`
+
+**Allowed values:** `"inline"` · `"sidecar"` · `"bundled"`
+
+| Value | Meaning |
+|-------|---------|
+| `inline` | Annotations embedded in text. |
+| `sidecar` | Separate `.ctx` file alongside the original. |
+| `bundled` | Original + annotations packaged together. |
+
+---
+
+### Source
+
+Describes the original content being annotated.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `mode` | [`SourceMode`](#sourcemode) | ✅ | Packaging mode. |
+| `type` | `string` | ✅ | MIME type of the original content, e.g. `"text/markdown"`, `"image/png"`. |
+| `checksum` | `string` | — | MD5 hash of the original file. MUST be present when mode is `"sidecar"`. |
+| `content` | `string` | — | Original content. MUST be present when mode is `"inline"` or `"bundled"`. Binary content is base64-encoded. |
+| `filename` | `string` | — | Original filename for human readability. |
+
+**Constraints:**
+- `additionalProperties: false`.
+
+---
+
+### TextRange
+
+Text character range for coordinate anchors.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `start` | `integer` | ✅ | Start character offset (inclusive). Minimum: `0`. |
+| `end` | `integer` | ✅ | End character offset (exclusive). Minimum: `0`. |
+
+**Constraints:**
+- `additionalProperties: false`.
+
+---
+
+### ImageRegion
+
+Image region — either a rectangle or a polygon. Uses `oneOf` discriminator.
+
+#### Variant A — Rectangle
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `x` | `number` | ✅ | Top-left corner x coordinate. Minimum: `0`. |
+| `y` | `number` | ✅ | Top-left corner y coordinate. Minimum: `0`. |
+| `width` | `number` | ✅ | Width of the region. Minimum: `0`. |
+| `height` | `number` | ✅ | Height of the region. Minimum: `0`. |
+
+**Constraints:**
+- `additionalProperties: false`.
+
+#### Variant B — Polygon
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `points` | `array<[number, number]>` | ✅ | Array of `[x, y]` coordinate pairs. Minimum 3 points. |
+
+**Constraints:**
+- `points.minItems: 3`.
+- Each item is a 2-element number array (`minItems: 2`, `maxItems: 2`).
+- `additionalProperties: false`.
+
+---
+
+### VideoRange
+
+Video time range with optional spatial region.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `start` | `number` | ✅ | Start time in seconds. Minimum: `0`. |
+| `end` | `number` | ✅ | End time in seconds. Minimum: `0`. |
+| `region` | [`ImageRegion`](#imageregion) | — | Optional spatial region within the video frame. |
+
+**Constraints:**
+- `additionalProperties: false`.
+
+---
+
+### AudioRange
+
+Audio time range.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `start` | `number` | ✅ | Start time in seconds. Minimum: `0`. |
+| `end` | `number` | ✅ | End time in seconds. Minimum: `0`. |
+
+**Constraints:**
+- `additionalProperties: false`.
+
+---
+
+### Anchor
+
+Defines where an annotation attaches to the source content. Uses `scope` as discriminator with 6 variants via `oneOf`.
+
+#### Variant 1 — `scope: "global"`
+
+Global anchor — applies to the entire source content.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `scope` | `const "global"` | ✅ | Discriminator. |
+
+**Constraints:**
+- `additionalProperties: false`.
+
+#### Variant 2 — `scope: "coordinate"`
+
+Coordinate anchor — position-based attachment. Exactly one of `text`, `image`, `video`, or `audio` must be present (enforced by inner `oneOf`).
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `scope` | `const "coordinate"` | ✅ | Discriminator. |
+| `text` | [`TextRange`](#textrange) | oneOf | Text character range. |
+| `image` | [`ImageRegion`](#imageregion) | oneOf | Image region. |
+| `video` | [`VideoRange`](#videorange) | oneOf | Video time range. |
+| `audio` | [`AudioRange`](#audiorange) | oneOf | Audio time range. |
+
+**Constraints:**
+- Exactly one of `text`, `image`, `video`, `audio` must be present.
+- `additionalProperties: false`.
+
+#### Variant 3 — `scope: "marker"`
+
+Marker anchor — attaches to a named marker or bookmark.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `scope` | `const "marker"` | ✅ | Discriminator. |
+| `name` | `string` | ✅ | Name of the marker or bookmark. |
+
+**Constraints:**
+- `additionalProperties: false`.
+
+#### Variant 4 — `scope: "feature"`
+
+Feature anchor — attaches to a detected feature (e.g., face, object).
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `scope` | `const "feature"` | ✅ | Discriminator. |
+| `kind` | `string` | ✅ | Kind of feature, e.g. `"face"`, `"object"`. |
+| `value` | `string` | ✅ | Feature value or label. |
+| `sample` | `string` | — | Optional sample or example of the feature. |
+
+**Constraints:**
+- `additionalProperties: false`.
+
+#### Variant 5 — `scope: "pattern"`
+
+Pattern anchor — attaches to content matching a pattern (e.g., regex).
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `scope` | `const "pattern"` | ✅ | Discriminator. |
+| `rule` | `string` | ✅ | Pattern type, e.g. `"regex"`, `"css-selector"`, `"xpath"`. |
+| `expression` | `string` | ✅ | The pattern expression. |
+
+**Constraints:**
+- `additionalProperties: false`.
+
+#### Variant 6 — `scope: "annotation"`
+
+Annotation anchor — references another annotation for meta-annotations.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `scope` | `const "annotation"` | ✅ | Discriminator. |
+| `ref` | `string` | ✅ | ID of the target annotation. |
+
+**Constraints:**
+- `additionalProperties: false`.
+
+---
+
+### Annotation
+
+A single semantic annotation on the source content.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `anchor` | [`Anchor`](#anchor) | ✅ | Defines where the annotation attaches to the source content. |
+| `id` | `string` | — | Annotation name (similar to CSS id). Used for cross-referencing. |
+| `signs` | `array<string>` | — | Marker qualities. Built-in: `highlight`, `warning`, `question`, `secret`. Custom: `vendor:signname`. |
+| `whatis` | `string` | — | Object type of the annotated content. Built-in: `person`, `organization`, `event`, `time`, `place`, `term`, `object`, `skill`, `emotion`. |
+| `context` | [`Context`](#context) | — | Contextual sub-structure for this annotation. |
+
+**Constraints:**
+- `additionalProperties: false`.
+
+---
+
+### ContextValue
+
+A context value — either a text description / URL (`string`) or an [`Anchor`](#anchor) reference. Uses `oneOf`.
+
+| Variant | Type | Description |
+|---------|------|-------------|
+| String | `string` | Plain text description or URL. |
+| Anchor | [`Anchor`](#anchor) | Reference to a position in the source content. |
+
+---
+
+### Context
+
+Contextual sub-structure. All fields except `reactions` are arrays of [`ContextValue`](#contextvalue).
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `participants` | `array<`[`ContextValue`](#contextvalue)`>` | — | Participants in the interaction. |
+| `memory` | `array<`[`ContextValue`](#contextvalue)`>` | — | What memory the annotation is based on. |
+| `situation` | `array<`[`ContextValue`](#contextvalue)`>` | — | Under what situation the annotation applies. |
+| `subtext` | `array<`[`ContextValue`](#contextvalue)`>` | — | Subtext, implication, or hidden meaning. |
+| `culture` | `array<`[`ContextValue`](#contextvalue)`>` | — | Cultural context. |
+| `references` | `array<`[`ContextValue`](#contextvalue)`>` | — | Related reference materials. |
+| `reactions` | `array<`[`Reaction`](#reaction)`>` | — | Reactions triggered when the annotation is displayed. |
+
+**Constraints:**
+- `additionalProperties: false`.
+
+---
+
+### Reaction
+
+A reaction triggered when the annotation is displayed.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `type` | `string` | ✅ | Reaction type. |
+| `params` | `object` | ✅ | Reaction-type-specific parameters. `additionalProperties: true`. |
+
+**Constraints:**
+- `type` enum: `"render"` · `"function"` · `"app"` · `"command"`.
+- `additionalProperties: false`.
+
+---
+
+### Participant
+
+Structured participant data.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | `string` | ✅ | Participant identifier. |
+| `role` | `string` | ✅ | Participant role. |
+| `name` | `string` | — | Participant display name. |
+
+**Constraints:**
+- `additionalProperties: false`.
