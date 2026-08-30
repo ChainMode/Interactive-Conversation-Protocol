@@ -1,0 +1,40 @@
+# === 仓库根目录：默认忽略一切 ===
+/*
+
+# === 显式放行（用户可见的「产物」）===
+!/docs/
+!/README.md
+!/.gitignore
+!/LICENSE
+# 协议规范性工件 = 产物：第三方据此实现并自测，「开放协议」才名副其实
+# （2025-10-25 版 schema.json/.mdx/.ts 为 14KB/10KB/7.7KB 实质内容，已跟踪）
+!/schema/
+
+# === 已放行目录内仍要剔除的噪声 ===
+.DS_Store
+*.swp
+*.swo
+*~
+Thumbs.db
+__pycache__/
+*.py[cod]
+node_modules/
+
+# === 内部文件（工程过程文档，留本地，不公开）===
+# 蓝图内部对照表 / 同步状态（仅维护用）
+docs/*/blueprint/glossary.md
+docs/*/blueprint/sync-status.yaml
+
+# 备注：
+# 1. /* 仅匹配仓库根一级条目；任一 !/<dir>/ 放行后，其内文件默认被跟踪，再由上方噪声规则剔除。
+# 2. 「产物」（公开）：docs/、schema/、README、LICENSE。
+# 3. 「工程过程」（留本地、未放行故不推送）：openspec/、.kiro/、.dev-os/、.cursor/、
+#    .githooks/、AGENTS.md、decisions/。
+#    依据 PO 裁定 D-1（2026-08-12）：**openspec 永久留本地、只供开发团队，docs/ 是唯一公开产物**。
+# 4. 本文件为 2026-08-12 新建：此前 ICP **完全没有 .gitignore**，导致
+#    22 个 `.kiro/specs/**` 文件被 git 跟踪（阶段 1 归档后成为待提交删除，依 PO 裁定 D-3 一并提交），
+#    且 openspec/ 处于「未忽略且未跟踪」状态，一次 `git add .` 即会违反
+#    组织宪章「过程工具不进 github repo」与 GOV-05 三桶规则。
+# 5. 注意 .gitignore 不影响已跟踪文件：本文件新建后仍须用 `git rm --cached` 撤除
+#    历史误跟踪项（22 个 .kiro 文件 + 根目录 .DS_Store）。
+# 6. 后续如需公开更多目录，追加一行 !/<dir>/ 即可。
