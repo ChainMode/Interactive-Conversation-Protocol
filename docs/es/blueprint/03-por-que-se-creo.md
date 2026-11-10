@@ -1,4 +1,4 @@
-## 2. Por Qué se Creó Este Proyecto
+## 3. Por Qué se Creó Este Proyecto
 
 ### ❓ Problemas a Resolver
 
