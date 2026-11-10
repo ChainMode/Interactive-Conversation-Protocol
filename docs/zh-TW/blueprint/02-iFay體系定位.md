@@ -1,29 +1,29 @@
 ## 2. iFay 體系定位
 
-ICP 誕生於 iFay 體系，但其價值不局限於 iFay。本章闡明 ICP 在 iFay 生態中的架構位置，以及它作為獨立協議標準的通用價值。
+ICP 誕生於 iFay 體系，但其價值不局限於 iFay。本章闡明 ICP 在 iFay 生態中的架構位置，以及它作為獨立協定標準的通用價值。
 
 ### iFay 的分層架構與 ICP 的位置
 
 iFay Framework 採用五層架構：
 
 - **Context 層**（最上層）：負責模組化多模態訊息（Modular Multimodal Messages）的組裝、Prompt 翻譯、本地裝置 API、資料傳輸 API 和遠端 API 的對接
-- **Protocol 層**：定義 iFay 與外部世界互動的協議集合
+- **Protocol 層**：定義 iFay 與外部世界互動的協定集合
 - **iFay 核心層**：包含憑證（Credentials）、感知（Sense）、行動（Action）、思維（Thought）四大能力模組，底層由自我模型（Ego Model）驅動
 - **Virtual Runtime Environment 層**：iFay 的執行環境，支援電腦、具身機器人、容器、終端裝置、伺服器/雲端、應用內嵌等多種載體，底層由 FayGer 執行時管理
 - **Global Merit Chain**（縱貫層）：貫穿全域的信譽與價值體系
 
-ICP（Interactive Conversation Protocol）位於 Protocol 層，是 iFay 協議集合中的一員，與其他 5 個協議並列：
+ICP（Interactive Conversation Protocol）位於 Protocol 層，是 iFay 協定集合中的一員，與其他 5 個協定並列：
 
-| 協議 | 職責 |
+| 協定 | 職責 |
 |------|------|
-| Faying Protocol | iFay 之間的社交與身份協議 |
-| **Interactive Conversation Protocol (ICP)** | **人機互動式對話的語義描述協議** |
-| Telepathy Protocol | 意圖與心智狀態的傳遞協議 |
-| Control Authority Protocol | 權限控制與授權協議 |
-| Data Tunnel Protocol | 資料通道與傳輸協議 |
-| Skill Sharing Protocol | 技能共享與呼叫協議 |
+| Faying Protocol | iFay 之間的社交與身份協定 |
+| **Interactive Conversation Protocol (ICP)** | **人機互動式對話的語義描述協定** |
+| Telepathy Protocol | 意圖與心智狀態的傳遞協定 |
+| Control Authority Protocol | 權限控制與授權協定 |
+| Data Tunnel Protocol | 資料通道與傳輸協定 |
+| Skill Sharing Protocol | 技能共享與呼叫協定 |
 
-各協議的典型應用場景：
+各協定的典型應用場景：
 
 > **Faying Protocol**：當你的 iFay 需要與朋友的 iFay 建立聯繫時，Faying Protocol 負責身份驗證和社交關係的建立。例如，你說「幫我聯繫一下小王」，iFay 透過 Faying Protocol 找到小王的 iFay，驗證雙方身份後建立安全的通訊通道。
 
@@ -56,19 +56,19 @@ iFay 與 coFay 的核心區別在於服務對象和職責邊界：
 - iFay 服務於特定個人，了解該個人的全部語境，代表個人利益
 - coFay 服務於公共職能，遵循角色規範和職業準則，代表公共利益
 
-在 iFay 體系中，iFay 和 coFay 之間的溝通可以透過多種協議進行。當涉及互動式對話場景時，ICP 承擔語義描述的職責；而身份驗證走 Faying Protocol，權限控制走 Control Authority Protocol，資料傳輸走 Data Tunnel Protocol——各協議各司其職。
+在 iFay 體系中，iFay 和 coFay 之間的溝通可以透過多種協定進行。當涉及互動式對話場景時，ICP 承擔語義描述的職責；而身份驗證走 Faying Protocol，權限控制走 Control Authority Protocol，資料傳輸走 Data Tunnel Protocol——各協定各司其職。
 
-> 例如，你對 iFay 說「幫我掛一個明天下午的皮膚科號」。iFay 透過 Faying Protocol 找到醫院的掛號 coFay，透過 Control Authority Protocol 驗證你的健保身份和掛號權限，透過 ICP 將你的症狀描述（帶有時間、身體部位等註解）傳遞給掛號 coFay，coFay 透過 ICP 回傳可選的醫生列表（帶有專長標註、評分、可用時段等註解），最終在你的手機上渲染為一個可互動的預約表單。整個過程中，每個協議各司其職，ICP 負責的是人與 Fay 之間的語義互動部分。
+> 例如，你對 iFay 說「幫我掛一個明天下午的皮膚科號」。iFay 透過 Faying Protocol 找到醫院的掛號 coFay，透過 Control Authority Protocol 驗證你的健保身份和掛號權限，透過 ICP 將你的症狀描述（帶有時間、身體部位等註解）傳遞給掛號 coFay，coFay 透過 ICP 回傳可選的醫生列表（帶有專長標註、評分、可用時段等註解），最終在你的手機上渲染為一個可互動的預約表單。整個過程中，每個協定各司其職，ICP 負責的是人與 Fay 之間的語義互動部分。
 
 ### ICP 的獨立價值
 
-雖然 ICP 誕生於 iFay 體系，但它被設計為一個獨立的語義描述協議，不依賴 iFay 即可使用。
+雖然 ICP 誕生於 iFay 體系，但它被設計為一個獨立的語義描述協定，不依賴 iFay 即可使用。
 
 任何需要結構化描述人機互動語義的系統都可以採用 ICP：聊天應用、語音助手、AR/VR 平台、企業協作工具、IoT 裝置控制面板——只要存在「人與機器之間需要傳遞帶語境的結構化資訊」的場景，ICP 就有用武之地。
 
 ICP 因此具有雙重身份：
 
-- 在 iFay 體系內，它是 Protocol 層中負責互動式對話的語義描述協議
-- 在 iFay 體系外，它是一個通用的、包含語境的語義描述協議，適用於任何人機互動場景
+- 在 iFay 體系內，它是 Protocol 層中負責互動式對話的語義描述協定
+- 在 iFay 體系外，它是一個通用的、包含語境的語義描述協定，適用於任何人機互動場景
 
 > 例如，一個獨立的智慧客服系統（不使用 iFay）同樣可以採用 ICP 來描述客服對話中的結構化資訊：將使用者的問題標記為不同的語義類型（投訴、諮詢、建議），附加使用者的會話歷史和裝置資訊作為語境，然後根據客服終端的能力動態組裝回覆介面。
