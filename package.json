@@ -2,7 +2,7 @@
   "name": "@ifay/icp",
   "version": "1.0.0",
   "description": "Zero-dependency ICP 1.0 (.ctx) reference validator, mode converter, inline markup round-trip parser/pretty-printer, reaction safety gate, and terminal degradation library.",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "main": "./src/index.mjs",
   "types": "./src/index.d.ts",

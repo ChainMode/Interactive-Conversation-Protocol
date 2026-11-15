@@ -39,6 +39,9 @@
 npm test
 ```
 
-## 许可证
+## License
 
-Apache License 2.0，详见 [LICENSE](./LICENSE)。
+**MIT (Reference Implementations, Schemas & Test Vectors) / CC BY 4.0 (Specifications & Blueprints)** — Copyright (c) 2025-2026 ChainMode contributors.
+
+- 参考实现、Schema 与测试向量（`src/`、`tests/`、`schemas/`、`schema/`、`vectors/`）以 [MIT License](./LICENSE) 授权。
+- `docs/` 下的协议规范与架构蓝图文档以 [CC BY 4.0](./LICENSE-DOCS) 授权。
