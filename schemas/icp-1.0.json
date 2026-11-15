@@ -1,0 +1,832 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "icp://schemas/ctx-file/1.0",
+  "title": "ICP Contextual Annotation File",
+  "description": "Normative JSON Schema (Draft 2020-12) for ICP 1.0 .ctx files (icp-ctx-file/1.0).",
+  "type": "object",
+  "required": [
+    "meta",
+    "source",
+    "annotations"
+  ],
+  "properties": {
+    "meta": {
+      "$ref": "#/$defs/meta"
+    },
+    "source": {
+      "$ref": "#/$defs/source"
+    },
+    "annotations": {
+      "type": "array",
+      "description": "Ordered list of annotations on the source content.",
+      "items": {
+        "$ref": "#/$defs/annotation"
+      }
+    },
+    "skills_bridge": {
+      "$ref": "#/$defs/skillsBridge"
+    },
+    "concepts": {
+      "$ref": "#/$defs/conceptsList"
+    }
+  },
+  "patternProperties": {
+    "^[a-z0-9-]+:[a-z0-9_]+$": {}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "vendorIdentifier": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+:[a-z0-9_]+$",
+      "description": "Namespaced custom identifier in vendor:name format."
+    },
+    "builtInSign": {
+      "type": "string",
+      "enum": [
+        "highlight",
+        "warning",
+        "question",
+        "secret"
+      ],
+      "description": "Frozen ICP 1.0 built-in sign keywords."
+    },
+    "signKeyword": {
+      "description": "Either a built-in sign keyword or a vendor:name custom sign.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/builtInSign"
+        },
+        {
+          "$ref": "#/$defs/vendorIdentifier"
+        }
+      ]
+    },
+    "builtInWhatis": {
+      "type": "string",
+      "enum": [
+        "person",
+        "organization",
+        "event",
+        "time",
+        "place",
+        "term",
+        "object",
+        "skill",
+        "emotion"
+      ],
+      "description": "Frozen ICP 1.0 built-in whatis keywords."
+    },
+    "whatisKeyword": {
+      "description": "Either a built-in whatis keyword or a vendor:name custom whatis.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/builtInWhatis"
+        },
+        {
+          "$ref": "#/$defs/vendorIdentifier"
+        }
+      ]
+    },
+    "meta": {
+      "type": "object",
+      "description": "Metadata block for the .ctx file.",
+      "required": [
+        "version",
+        "id",
+        "created"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^(?:icp-ctx-file\\/)?1\\.[0-9]+$",
+          "description": "Two-segment protocol wire version, e.g. \"icp-ctx-file/1.0\" or \"1.0\"."
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier of this .ctx file."
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp in RFC 3339 format."
+        },
+        "locale": {
+          "type": "string",
+          "minLength": 2,
+          "description": "BCP-47 locale tag, e.g. \"zh-CN\"."
+        },
+        "schema": {
+          "type": "string",
+          "description": "Schema URI reference, e.g. \"icp://schemas/ctx-file/1.0\"."
+        }
+      },
+      "patternProperties": {
+        "^[a-z0-9-]+:[a-z0-9_]+$": {}
+      },
+      "additionalProperties": false
+    },
+    "sourceMode": {
+      "type": "string",
+      "enum": [
+        "inline",
+        "sidecar",
+        "bundled",
+        "embedded",
+        "detached",
+        "standalone"
+      ],
+      "description": "Packaging mode: inline/embedded (annotations embedded in text), sidecar/detached (separate .ctx file), bundled/standalone (original + annotations packaged together)."
+    },
+    "source": {
+      "type": "object",
+      "description": "Describes the original content being annotated.",
+      "required": [
+        "mode",
+        "type"
+      ],
+      "properties": {
+        "mode": {
+          "$ref": "#/$defs/sourceMode"
+        },
+        "type": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9!#$&^_.+-]+\\/[a-zA-Z0-9!#$&^_.+-]+$",
+          "description": "MIME type of the original content, e.g. \"text/markdown\", \"image/png\"."
+        },
+        "checksum": {
+          "type": "string",
+          "description": "Integrity checksum of the clean original file (canonical SHA-256 \"sha256:<64-hex>\" or legacy MD5). MUST be present when mode is \"sidecar\" or \"detached\"."
+        },
+        "content": {
+          "type": "string",
+          "description": "Original content. MUST be present when mode is \"inline\"/\"embedded\" or \"bundled\"/\"standalone\", and MUST NOT be present when mode is \"sidecar\"/\"detached\"."
+        },
+        "filename": {
+          "type": "string",
+          "description": "Original filename for human readability."
+        }
+      },
+      "patternProperties": {
+        "^[a-z0-9-]+:[a-z0-9_]+$": {}
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "enum": [
+                  "sidecar",
+                  "detached"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "checksum"
+            ],
+            "not": {
+              "required": [
+                "content"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "enum": [
+                  "inline",
+                  "embedded"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "content"
+            ],
+            "properties": {
+              "type": {
+                "pattern": "^text\\/"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "enum": [
+                  "bundled",
+                  "standalone"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "content"
+            ]
+          }
+        }
+      ]
+    },
+    "textRange": {
+      "type": "object",
+      "description": "Text character range for coordinate anchors (start < end).",
+      "required": [
+        "start",
+        "end"
+      ],
+      "properties": {
+        "start": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Start character offset (inclusive)."
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "End character offset (exclusive)."
+        }
+      },
+      "additionalProperties": false
+    },
+    "imageRect": {
+      "type": "object",
+      "description": "Rectangular image region.",
+      "required": [
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
+      "properties": {
+        "x": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Top-left corner x coordinate."
+        },
+        "y": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Top-left corner y coordinate."
+        },
+        "width": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Width of the region (> 0)."
+        },
+        "height": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Height of the region (> 0)."
+        }
+      },
+      "additionalProperties": false
+    },
+    "imagePolygon": {
+      "type": "object",
+      "description": "Polygon image region.",
+      "required": [
+        "points"
+      ],
+      "properties": {
+        "points": {
+          "type": "array",
+          "description": "Array of [x, y] coordinate pairs. Minimum 3 points.",
+          "minItems": 3,
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": 0
+            },
+            "minItems": 2,
+            "maxItems": 2
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "imageRegion": {
+      "description": "Image region — either a rectangle or a polygon (direct or wrapped in rect/polygon).",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/imageRect"
+        },
+        {
+          "$ref": "#/$defs/imagePolygon"
+        },
+        {
+          "type": "object",
+          "required": [
+            "rect"
+          ],
+          "properties": {
+            "rect": {
+              "$ref": "#/$defs/imageRect"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "polygon"
+          ],
+          "properties": {
+            "polygon": {
+              "$ref": "#/$defs/imagePolygon"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "videoRange": {
+      "type": "object",
+      "description": "Video time range with optional spatial region (start <= end).",
+      "required": [
+        "start",
+        "end"
+      ],
+      "properties": {
+        "start": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Start time in seconds."
+        },
+        "end": {
+          "type": "number",
+          "minimum": 0,
+          "description": "End time in seconds."
+        },
+        "region": {
+          "$ref": "#/$defs/imageRegion"
+        }
+      },
+      "additionalProperties": false
+    },
+    "audioRange": {
+      "type": "object",
+      "description": "Audio time range (start <= end).",
+      "required": [
+        "start",
+        "end"
+      ],
+      "properties": {
+        "start": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Start time in seconds."
+        },
+        "end": {
+          "type": "number",
+          "minimum": 0,
+          "description": "End time in seconds."
+        }
+      },
+      "additionalProperties": false
+    },
+    "anchor": {
+      "description": "Defines where an annotation attaches to the source content. Uses scope as discriminator.",
+      "oneOf": [
+        {
+          "type": "object",
+          "description": "Global anchor — applies to the entire source content.",
+          "properties": {
+            "scope": {
+              "const": "global"
+            }
+          },
+          "required": [
+            "scope"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "description": "Coordinate anchor — position-based attachment.",
+          "properties": {
+            "scope": {
+              "const": "coordinate"
+            },
+            "text": {
+              "$ref": "#/$defs/textRange"
+            },
+            "image": {
+              "$ref": "#/$defs/imageRegion"
+            },
+            "video": {
+              "$ref": "#/$defs/videoRange"
+            },
+            "audio": {
+              "$ref": "#/$defs/audioRange"
+            }
+          },
+          "required": [
+            "scope"
+          ],
+          "oneOf": [
+            {
+              "required": [
+                "text"
+              ]
+            },
+            {
+              "required": [
+                "image"
+              ]
+            },
+            {
+              "required": [
+                "video"
+              ]
+            },
+            {
+              "required": [
+                "audio"
+              ]
+            }
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "description": "Marker anchor — attaches to a named marker or bookmark.",
+          "properties": {
+            "scope": {
+              "const": "marker"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Name of the marker or bookmark."
+            }
+          },
+          "required": [
+            "scope",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "description": "Feature anchor — attaches to a detected feature (e.g., face, object).",
+          "properties": {
+            "scope": {
+              "const": "feature"
+            },
+            "kind": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Kind of feature, e.g. \"face\", \"object\"."
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Feature value or label."
+            },
+            "sample": {
+              "type": "string",
+              "description": "Optional sample or example of the feature."
+            }
+          },
+          "required": [
+            "scope",
+            "kind",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "description": "Pattern anchor — attaches to content matching a pattern (e.g., regex).",
+          "properties": {
+            "scope": {
+              "const": "pattern"
+            },
+            "rule": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Pattern type, e.g. \"regex\", \"css-selector\", \"xpath\"."
+            },
+            "expression": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The pattern expression."
+            }
+          },
+          "required": [
+            "scope",
+            "rule",
+            "expression"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "description": "Annotation anchor — references another annotation ID (must be acyclic).",
+          "properties": {
+            "scope": {
+              "const": "annotation"
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1,
+              "description": "ID of the target annotation."
+            }
+          },
+          "required": [
+            "scope",
+            "ref"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "participant": {
+      "type": "object",
+      "description": "Structured participant data.",
+      "required": [
+        "id",
+        "role"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Participant identifier."
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Participant role."
+        },
+        "name": {
+          "type": "string",
+          "description": "Participant display name."
+        }
+      },
+      "patternProperties": {
+        "^[a-z0-9-]+:[a-z0-9_]+$": {}
+      },
+      "additionalProperties": false
+    },
+    "contextValue": {
+      "description": "A context value — either a text description / URL (string) or an anchor reference.",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "$ref": "#/$defs/anchor"
+        }
+      ]
+    },
+    "participantItem": {
+      "description": "Either a ContextValue or a structured Participant object.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/contextValue"
+        },
+        {
+          "$ref": "#/$defs/participant"
+        }
+      ]
+    },
+    "skillBridgeEntry": {
+      "type": "object",
+      "description": "Complementary protocol skill binding entry.",
+      "required": [
+        "protocol"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Local skill binding identifier."
+        },
+        "protocol": {
+          "type": "string",
+          "enum": [
+            "mcp",
+            "google-a2a",
+            "openapi",
+            "ssp"
+          ],
+          "description": "Target complementary protocol identifier."
+        },
+        "uri": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Endpoint or descriptor URI."
+        },
+        "endpoint": {
+          "type": "string",
+          "description": "Optional service endpoint URL."
+        },
+        "operation": {
+          "type": "string",
+          "description": "Tool, skill, or operation name."
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of the bridged skill."
+        }
+      },
+      "patternProperties": {
+        "^[a-z0-9-]+:[a-z0-9_]+$": {}
+      },
+      "additionalProperties": false
+    },
+    "skillsBridge": {
+      "type": "array",
+      "description": "List of complementary protocol skill bindings.",
+      "items": {
+        "$ref": "#/$defs/skillBridgeEntry"
+      }
+    },
+    "conceptEntry": {
+      "type": "object",
+      "description": "JSON-LD linked concept reference.",
+      "required": [
+        "uri"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Local concept alias."
+        },
+        "uri": {
+          "type": "string",
+          "minLength": 1,
+          "description": "JSON-LD @id / concept URI reference."
+        },
+        "context_uri": {
+          "type": "string",
+          "description": "Optional JSON-LD @context URI."
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable concept label."
+        }
+      },
+      "patternProperties": {
+        "^[a-z0-9-]+:[a-z0-9_]+$": {}
+      },
+      "additionalProperties": false
+    },
+    "conceptsList": {
+      "type": "array",
+      "description": "List of JSON-LD concept references.",
+      "items": {
+        "$ref": "#/$defs/conceptEntry"
+      }
+    },
+    "reactionType": {
+      "description": "Built-in reaction type or vendor:name custom reaction type.",
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "render",
+            "url",
+            "function",
+            "app",
+            "command"
+          ]
+        },
+        {
+          "$ref": "#/$defs/vendorIdentifier"
+        }
+      ]
+    },
+    "reaction": {
+      "type": "object",
+      "description": "A reaction triggered when the annotation is displayed.",
+      "required": [
+        "type",
+        "params"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/reactionType"
+        },
+        "params": {
+          "type": "object",
+          "description": "Reaction-type-specific parameters.",
+          "additionalProperties": true
+        }
+      },
+      "patternProperties": {
+        "^[a-z0-9-]+:[a-z0-9_]+$": {}
+      },
+      "additionalProperties": false
+    },
+    "context": {
+      "type": "object",
+      "description": "Contextual sub-structure for an annotation.",
+      "properties": {
+        "participants": {
+          "type": "array",
+          "description": "Participants in the interaction (ContextValue or structured Participant).",
+          "items": {
+            "$ref": "#/$defs/participantItem"
+          }
+        },
+        "memory": {
+          "type": "array",
+          "description": "What memory the annotation is based on.",
+          "items": {
+            "$ref": "#/$defs/contextValue"
+          }
+        },
+        "situation": {
+          "type": "array",
+          "description": "Under what situation the annotation applies.",
+          "items": {
+            "$ref": "#/$defs/contextValue"
+          }
+        },
+        "subtext": {
+          "type": "array",
+          "description": "Subtext, implication, or hidden meaning.",
+          "items": {
+            "$ref": "#/$defs/contextValue"
+          }
+        },
+        "culture": {
+          "type": "array",
+          "description": "Cultural context.",
+          "items": {
+            "$ref": "#/$defs/contextValue"
+          }
+        },
+        "references": {
+          "type": "array",
+          "description": "Related reference materials.",
+          "items": {
+            "$ref": "#/$defs/contextValue"
+          }
+        },
+        "reactions": {
+          "type": "array",
+          "description": "Reactions triggered when the annotation is displayed.",
+          "items": {
+            "$ref": "#/$defs/reaction"
+          }
+        },
+        "skills_bridge": {
+          "$ref": "#/$defs/skillsBridge"
+        },
+        "concepts": {
+          "$ref": "#/$defs/conceptsList"
+        }
+      },
+      "patternProperties": {
+        "^[a-z0-9-]+:[a-z0-9_]+$": {}
+      },
+      "additionalProperties": false
+    },
+    "annotation": {
+      "type": "object",
+      "description": "A single semantic annotation on the source content.",
+      "required": [
+        "anchor"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Annotation identifier used for cross-referencing."
+        },
+        "signs": {
+          "type": "array",
+          "description": "Marker qualities. Built-in: highlight, warning, question, secret. Custom: vendor:name.",
+          "items": {
+            "$ref": "#/$defs/signKeyword"
+          }
+        },
+        "whatis": {
+          "$ref": "#/$defs/whatisKeyword"
+        },
+        "anchor": {
+          "$ref": "#/$defs/anchor"
+        },
+        "context": {
+          "$ref": "#/$defs/context"
+        }
+      },
+      "patternProperties": {
+        "^[a-z0-9-]+:[a-z0-9_]+$": {}
+      },
+      "additionalProperties": false
+    }
+  }
+}

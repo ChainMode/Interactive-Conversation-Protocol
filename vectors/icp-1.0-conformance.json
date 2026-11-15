@@ -1,0 +1,780 @@
+{
+  "suite": "icp-ctx-file/1.0",
+  "edition": "2025-10-25",
+  "schema": "icp://schemas/ctx-file/1.0",
+  "vectors": [
+    {
+      "id": "VEC-ICP-001",
+      "category": "validation",
+      "description": "Valid standalone (bundled) .ctx document with SHA-256 checksum, skills_bridge (mcp/ssp), concepts (JSON-LD uri), and mixed Participant + ContextValue",
+      "expected": {
+        "valid": true
+      },
+      "input": {
+        "ctx": {
+          "meta": {
+            "version": "icp-ctx-file/1.0",
+            "id": "ctx-vec-001",
+            "created": "2025-10-25T10:00:00Z",
+            "locale": "zh-CN",
+            "schema": "icp://schemas/ctx-file/1.0"
+          },
+          "source": {
+            "mode": "standalone",
+            "type": "text/markdown",
+            "content": "季度评审报告：第一阶段按期交付。",
+            "checksum": "sha256:90b77c6d3ec2170fbf8740deb21f771a5c0dd0081bc2144ac60e9acf9c1ec1ba",
+            "filename": "q3-review.md"
+          },
+          "skills_bridge": [
+            {
+              "id": "weather_lookup",
+              "protocol": "mcp",
+              "uri": "mcp://tools/weather.current",
+              "operation": "get_current_weather"
+            },
+            {
+              "id": "audit_skill",
+              "protocol": "ssp",
+              "uri": "https://skills.example.org/.well-known/skill-sharing#audit"
+            }
+          ],
+          "concepts": [
+            {
+              "id": "milestone_concept",
+              "uri": "https://schema.org/Project",
+              "context_uri": "https://schema.org",
+              "label": "Project Milestone"
+            }
+          ],
+          "annotations": [
+            {
+              "id": "ann-milestone",
+              "signs": [
+                "highlight"
+              ],
+              "whatis": "event",
+              "anchor": {
+                "scope": "coordinate",
+                "text": {
+                  "start": 7,
+                  "end": 15
+                }
+              },
+              "context": {
+                "participants": [
+                  {
+                    "id": "ifay_prime_01",
+                    "role": "reviewer",
+                    "name": "林工"
+                  },
+                  "项目评审委员会"
+                ],
+                "situation": [
+                  "季度里程碑验收"
+                ],
+                "reactions": [
+                  {
+                    "type": "render",
+                    "params": {
+                      "component": "timeline_card",
+                      "title": "第一阶段交付",
+                      "time": "2025-10-25"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "VEC-ICP-002",
+      "category": "validation",
+      "description": "Valid embedded (inline) .ctx document accepting shorthand wire version '1.0'",
+      "expected": {
+        "valid": true
+      },
+      "input": {
+        "ctx": {
+          "meta": {
+            "version": "1.0",
+            "id": "ctx-vec-002",
+            "created": "2025-10-25T10:05:00Z"
+          },
+          "source": {
+            "mode": "embedded",
+            "type": "text/markdown",
+            "content": "请 @张工 在 [2025-11-01] 前复核 **核心指标**。"
+          },
+          "annotations": [
+            {
+              "whatis": "person",
+              "anchor": {
+                "scope": "coordinate",
+                "text": {
+                  "start": 2,
+                  "end": 4
+                }
+              }
+            },
+            {
+              "whatis": "time",
+              "anchor": {
+                "scope": "coordinate",
+                "text": {
+                  "start": 7,
+                  "end": 17
+                }
+              }
+            },
+            {
+              "signs": [
+                "highlight"
+              ],
+              "anchor": {
+                "scope": "coordinate",
+                "text": {
+                  "start": 21,
+                  "end": 25
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "VEC-ICP-003",
+      "category": "validation_and_checksum",
+      "description": "Valid detached (sidecar) .ctx document for image/png with matching SHA-256 external content",
+      "expected": {
+        "valid": true,
+        "checksumOk": true
+      },
+      "input": {
+        "externalContent": "PNG_BINARY_FIXTURE_BYTES_V1",
+        "ctx": {
+          "meta": {
+            "version": "icp-ctx-file/1.0",
+            "id": "ctx-vec-003",
+            "created": "2025-10-25T10:10:00Z"
+          },
+          "source": {
+            "mode": "detached",
+            "type": "image/png",
+            "checksum": "sha256:4f4f132f0d48f24b96587624a7a08fb089b5a1ace3fe88455de92e90de50620f",
+            "filename": "blueprint-diagram.png"
+          },
+          "annotations": [
+            {
+              "id": "ann-region-1",
+              "signs": [
+                "warning"
+              ],
+              "whatis": "object",
+              "anchor": {
+                "scope": "coordinate",
+                "image": {
+                  "x": 20,
+                  "y": 40,
+                  "width": 120,
+                  "height": 80
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "VEC-ICP-004",
+      "category": "checksum_mismatch",
+      "description": "Detached (sidecar) SHA-256 checksum drift detected when external content is modified",
+      "expected": {
+        "valid": true,
+        "checksumOk": false,
+        "errorCode": "E_ICP_CHECKSUM_MISMATCH"
+      },
+      "input": {
+        "externalContent": "TAMPERED_OR_DRIFTED_PNG_BYTES",
+        "ctx": {
+          "meta": {
+            "version": "icp-ctx-file/1.0",
+            "id": "ctx-vec-004",
+            "created": "2025-10-25T10:12:00Z"
+          },
+          "source": {
+            "mode": "detached",
+            "type": "image/png",
+            "checksum": "sha256:4f4f132f0d48f24b96587624a7a08fb089b5a1ace3fe88455de92e90de50620f",
+            "filename": "blueprint-diagram.png"
+          },
+          "annotations": []
+        }
+      }
+    },
+    {
+      "id": "VEC-ICP-005",
+      "category": "validation",
+      "description": "Detached (sidecar) mode carrying forbidden source.content is rejected",
+      "expected": {
+        "valid": false,
+        "errorCodes": [
+          "E_ICP_MODE_CONSTRAINT"
+        ]
+      },
+      "input": {
+        "ctx": {
+          "meta": {
+            "version": "icp-ctx-file/1.0",
+            "id": "ctx-vec-005",
+            "created": "2025-10-25T10:15:00Z"
+          },
+          "source": {
+            "mode": "sidecar",
+            "type": "text/plain",
+            "checksum": "sha256:90b77c6d3ec2170fbf8740deb21f771a5c0dd0081bc2144ac60e9acf9c1ec1ba",
+            "content": "forbidden fallback content"
+          },
+          "annotations": []
+        }
+      }
+    },
+    {
+      "id": "VEC-ICP-006",
+      "category": "version_check",
+      "description": "Incompatible major wire version 2.0 rejected with E_ICP_VERSION_INCOMPATIBLE",
+      "expected": {
+        "valid": false,
+        "errorCodes": [
+          "E_ICP_VERSION_INCOMPATIBLE"
+        ]
+      },
+      "input": {
+        "ctx": {
+          "meta": {
+            "version": "icp-ctx-file/2.0",
+            "id": "ctx-vec-006",
+            "created": "2025-10-25T10:20:00Z"
+          },
+          "source": {
+            "mode": "standalone",
+            "type": "text/plain",
+            "content": "hello"
+          },
+          "annotations": []
+        }
+      }
+    },
+    {
+      "id": "VEC-ICP-007",
+      "category": "validation",
+      "description": "Deprecated draft field names meta.created_at and source.media_type rejected per OQ-3",
+      "expected": {
+        "valid": false,
+        "errorCodes": [
+          "E_ICP_MISSING_REQUIRED",
+          "E_ICP_UNKNOWN_PROPERTY"
+        ]
+      },
+      "input": {
+        "ctx": {
+          "meta": {
+            "version": "icp-ctx-file/1.0",
+            "id": "ctx-vec-007",
+            "created_at": "2025-10-25T10:25:00Z"
+          },
+          "source": {
+            "mode": "standalone",
+            "media_type": "text/plain",
+            "content": "hello"
+          },
+          "annotations": []
+        }
+      }
+    },
+    {
+      "id": "VEC-ICP-008",
+      "category": "validation",
+      "description": "Multi-error aggregation: missing anchor and audio/mp3 pattern anchor incompatibility both reported",
+      "expected": {
+        "valid": false,
+        "errorCodes": [
+          "E_ICP_MISSING_ANCHOR",
+          "E_ICP_ANCHOR_MEDIA_INCOMPATIBLE"
+        ]
+      },
+      "input": {
+        "ctx": {
+          "meta": {
+            "version": "icp-ctx-file/1.0",
+            "id": "ctx-vec-008",
+            "created": "2025-10-25T10:30:00Z"
+          },
+          "source": {
+            "mode": "sidecar",
+            "type": "audio/mp3",
+            "checksum": "sha256:90b77c6d3ec2170fbf8740deb21f771a5c0dd0081bc2144ac60e9acf9c1ec1ba"
+          },
+          "annotations": [
+            {
+              "id": "ann-no-anchor",
+              "signs": [
+                "highlight"
+              ]
+            },
+            {
+              "id": "ann-bad-scope",
+              "anchor": {
+                "scope": "pattern",
+                "rule": "regex",
+                "expression": "abc+"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "VEC-ICP-009",
+      "category": "cycle_detection",
+      "description": "Direct annotation scope cycle (ann-a -> ann-b -> ann-a) rejected with E_ICP_ANCHOR_CYCLE",
+      "expected": {
+        "valid": false,
+        "errorCodes": [
+          "E_ICP_ANCHOR_CYCLE"
+        ]
+      },
+      "input": {
+        "ctx": {
+          "meta": {
+            "version": "icp-ctx-file/1.0",
+            "id": "ctx-vec-009",
+            "created": "2025-10-25T10:35:00Z"
+          },
+          "source": {
+            "mode": "standalone",
+            "type": "text/plain",
+            "content": "cycle test"
+          },
+          "annotations": [
+            {
+              "id": "ann-a",
+              "anchor": {
+                "scope": "annotation",
+                "ref": "ann-b"
+              }
+            },
+            {
+              "id": "ann-b",
+              "anchor": {
+                "scope": "annotation",
+                "ref": "ann-a"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "VEC-ICP-010",
+      "category": "cycle_detection",
+      "description": "Cross-context reference cycle (ann-1.context.references -> ann-2 -> ann-1) rejected with E_ICP_ANCHOR_CYCLE",
+      "expected": {
+        "valid": false,
+        "errorCodes": [
+          "E_ICP_ANCHOR_CYCLE"
+        ]
+      },
+      "input": {
+        "ctx": {
+          "meta": {
+            "version": "icp-ctx-file/1.0",
+            "id": "ctx-vec-010",
+            "created": "2025-10-25T10:38:00Z"
+          },
+          "source": {
+            "mode": "standalone",
+            "type": "text/plain",
+            "content": "context cycle test"
+          },
+          "annotations": [
+            {
+              "id": "ann-1",
+              "anchor": {
+                "scope": "global"
+              },
+              "context": {
+                "references": [
+                  {
+                    "scope": "annotation",
+                    "ref": "ann-2"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "ann-2",
+              "anchor": {
+                "scope": "annotation",
+                "ref": "ann-1"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "VEC-ICP-011",
+      "category": "secret_masking",
+      "description": "Secret-signed span masked by default for display and completely redacted in safe audit log",
+      "expected": {
+        "maskedText": "配置说明：访问口令为 ••••••••，严禁外泄。",
+        "auditMustNotContain": "demo-passphrase-alpha"
+      },
+      "input": {
+        "ctx": {
+          "meta": {
+            "version": "icp-ctx-file/1.0",
+            "id": "ctx-vec-011",
+            "created": "2025-10-25T10:40:00Z"
+          },
+          "source": {
+            "mode": "standalone",
+            "type": "text/plain",
+            "content": "配置说明：访问口令为 demo-passphrase-alpha，严禁外泄。",
+            "checksum": "sha256:9cb981e26e23bb17dfaa25d27036516a50e57342181bd99e73aeefdf2e40aff0"
+          },
+          "annotations": [
+            {
+              "id": "ann-secret-phrase",
+              "signs": [
+                "secret"
+              ],
+              "anchor": {
+                "scope": "coordinate",
+                "text": {
+                  "start": 11,
+                  "end": 32
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "VEC-ICP-012",
+      "category": "reaction_gate",
+      "description": "Unconsented url Reaction blocked by default",
+      "expected": {
+        "allowed": false,
+        "code": "E_ICP_CONSENT_REQUIRED"
+      },
+      "input": {
+        "reaction": {
+          "type": "url",
+          "params": {
+            "url": "https://example.org/external-action"
+          }
+        },
+        "options": {
+          "provenance": {
+            "verified": true,
+            "signerFayId": "ifay_demo_01"
+          }
+        }
+      }
+    },
+    {
+      "id": "VEC-ICP-013",
+      "category": "reaction_gate",
+      "description": "Unconsented function Reaction blocked even when listed in preset function allowlist",
+      "expected": {
+        "allowed": false,
+        "code": "E_ICP_CONSENT_REQUIRED"
+      },
+      "input": {
+        "reaction": {
+          "type": "function",
+          "params": {
+            "name": "flash_indicator",
+            "args": {
+              "color": "amber"
+            }
+          }
+        },
+        "options": {
+          "inPresetAllowlist": true,
+          "provenance": {
+            "verified": true,
+            "signerFayId": "ifay_demo_01"
+          }
+        }
+      }
+    },
+    {
+      "id": "VEC-ICP-014",
+      "category": "reaction_gate",
+      "description": "Unconsented app and command Reactions blocked without explicit Human Prime consent",
+      "expected": {
+        "allowed": false,
+        "code": "E_ICP_CONSENT_REQUIRED"
+      },
+      "input": {
+        "reaction": {
+          "type": "command",
+          "params": {
+            "cmd": "open https://example.org/report"
+          }
+        },
+        "options": {
+          "provenance": {
+            "verified": true,
+            "signerFayId": "ifay_demo_01"
+          },
+          "commandAllowlist": [
+            "open https://example.org/report"
+          ]
+        }
+      }
+    },
+    {
+      "id": "VEC-ICP-015",
+      "category": "reaction_gate",
+      "description": "Cross-device target_device function Reaction blocked when only initiator consent is given without target-device Human Prime consent",
+      "expected": {
+        "allowed": false,
+        "code": "E_ICP_TARGET_DEVICE_CONSENT_REQUIRED"
+      },
+      "input": {
+        "reaction": {
+          "type": "function",
+          "params": {
+            "name": "flash_button",
+            "target_device": "host_speaker_livingroom",
+            "args": {
+              "duration_ms": 2000
+            }
+          }
+        },
+        "options": {
+          "localDeviceId": "host_phone_01",
+          "provenance": {
+            "verified": true,
+            "signerFayId": "ifay_demo_01"
+          },
+          "consent": {
+            "granted": true,
+            "actor": "human_prime",
+            "consentId": "consent_init_001",
+            "singleUse": true
+          }
+        }
+      }
+    },
+    {
+      "id": "VEC-ICP-016",
+      "category": "reaction_gate",
+      "description": "Explicit Human Prime consent + target-device consent allows cross-device Reaction and emits CAP 1.0 delegation envelope",
+      "expected": {
+        "allowed": true,
+        "decision": "delegate_to_cap",
+        "capProtocol": "cap/1.0"
+      },
+      "input": {
+        "reaction": {
+          "type": "function",
+          "params": {
+            "name": "flash_button",
+            "target_device": "host_speaker_livingroom",
+            "args": {
+              "duration_ms": 2000
+            }
+          }
+        },
+        "options": {
+          "ctxId": "ctx-vec-016",
+          "annotationId": "ann-alert",
+          "localDeviceId": "host_phone_01",
+          "provenance": {
+            "verified": true,
+            "signerFayId": "ifay_demo_01"
+          },
+          "consent": {
+            "granted": true,
+            "actor": "human_prime",
+            "consentId": "consent_init_002",
+            "singleUse": true,
+            "targetDeviceConsent": {
+              "granted": true,
+              "actor": "human_prime",
+              "deviceId": "host_speaker_livingroom",
+              "consentId": "consent_target_002"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "VEC-ICP-017",
+      "category": "extension_preservation",
+      "description": "Valid vendor:name custom sign, whatis, and extension properties preserved across validation and mode conversions",
+      "expected": {
+        "valid": true,
+        "preservedVendorField": "acme:trace_tag",
+        "preservedVendorSign": "acme:reviewed"
+      },
+      "input": {
+        "ctx": {
+          "meta": {
+            "version": "icp-ctx-file/1.0",
+            "id": "ctx-vec-017",
+            "created": "2025-10-25T11:00:00Z",
+            "acme:trace_tag": "trace-99"
+          },
+          "source": {
+            "mode": "standalone",
+            "type": "text/markdown",
+            "content": "扩展测试文本"
+          },
+          "annotations": [
+            {
+              "id": "ann-ext-1",
+              "signs": [
+                "highlight",
+                "acme:reviewed"
+              ],
+              "whatis": "acme:workflow_step",
+              "acme:priority": 2,
+              "anchor": {
+                "scope": "coordinate",
+                "text": {
+                  "start": 0,
+                  "end": 6
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "VEC-ICP-018",
+      "category": "validation",
+      "description": "Malformed vendor namespace (uppercase vendor and empty vendor) rejected with E_ICP_INVALID_NAMESPACE",
+      "expected": {
+        "valid": false,
+        "errorCodes": [
+          "E_ICP_INVALID_NAMESPACE"
+        ]
+      },
+      "input": {
+        "ctx": {
+          "meta": {
+            "version": "icp-ctx-file/1.0",
+            "id": "ctx-vec-018",
+            "created": "2025-10-25T11:05:00Z"
+          },
+          "source": {
+            "mode": "standalone",
+            "type": "text/plain",
+            "content": "bad namespace"
+          },
+          "annotations": [
+            {
+              "signs": [
+                "BadVendor:approved",
+                ":missing_vendor"
+              ],
+              "anchor": {
+                "scope": "global"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "VEC-ICP-019",
+      "category": "inline_roundtrip",
+      "description": "Inline markup AST round-trip equivalence across nested signs, @person, [time], {#marker}, escapes, and trailing ->render reaction",
+      "expected": {
+        "cleanText": "请 张三 在 2025-11-01 前处理 重要风险（字面 **保留**）：提交审查清单"
+      },
+      "input": {
+        "inlineText": "{#sec-1}请 @张三 在 [2025-11-01] 前处理 **!!重要风险!!**（字面 \\**保留\\**）：[提交审查清单]->render(checkbox_list, items=[\"核对Schema\",\"跑通测试\"])"
+      }
+    },
+    {
+      "id": "VEC-ICP-020",
+      "category": "terminal_degradation",
+      "description": "Unknown vendor render component degrades to text_block and terminal renderer outputs clean plain text with secret masked",
+      "expected": {
+        "fallbackComponent": "text_block",
+        "degraded": true,
+        "plainText": "项目周报：核心指标正常，内部口令 ••••••••。"
+      },
+      "input": {
+        "renderReaction": {
+          "type": "render",
+          "params": {
+            "component": "acme:holo_chart",
+            "title": "Q4 趋势三维视图"
+          }
+        },
+        "ctx": {
+          "meta": {
+            "version": "icp-ctx-file/1.0",
+            "id": "ctx-vec-020",
+            "created": "2025-10-25T11:15:00Z"
+          },
+          "source": {
+            "mode": "embedded",
+            "type": "text/markdown",
+            "content": "项目周报：**核心指标正常**，内部口令 ~internal-token-demo~。"
+          },
+          "annotations": [
+            {
+              "signs": [
+                "highlight",
+                "futurevendor:sparkle"
+              ],
+              "anchor": {
+                "scope": "coordinate",
+                "text": {
+                  "start": 5,
+                  "end": 11
+                }
+              },
+              "context": {
+                "reactions": [
+                  {
+                    "type": "futurevendor:haptic",
+                    "params": {
+                      "intensity": 1
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "signs": [
+                "secret"
+              ],
+              "anchor": {
+                "scope": "coordinate",
+                "text": {
+                  "start": 17,
+                  "end": 36
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

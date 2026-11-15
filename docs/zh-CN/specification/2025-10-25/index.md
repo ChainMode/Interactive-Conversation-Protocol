@@ -1,10 +1,20 @@
+---
+title: "ICP 协议规范 — 语境注解格式"
+version: "1.0"
+status: Final
+date: 2025-10-25
+edition: 2025-10-25
+locale: zh-CN
+---
+
 # ICP 协议规范 — 语境注解格式
 
 **Interactive Conversation Protocol — Contextual Annotation Format Specification**
 
-- 协议版本：`icp-ctx-file/2025-10-25`
-- 文档状态：正式版（Normative）
-- 主语言：zh-CN
+- 协议版本：`icp-ctx-file/1.0`
+- 发布版次：`2025-10-25`
+- 文档状态：`Final`（正式版 / Normative）
+- 主语言：`zh-CN`
 
 ---
 
@@ -69,7 +79,7 @@
 - [9. 扩展机制](#9-扩展机制)
   - [9.1 命名空间约定](#91-命名空间约定)
   - [9.2 版本兼容性规则](#92-版本兼容性规则)
-  - [9.3 语义版本](#93-语义版本)
+  - [9.3 协议版本与编辑版次](#93-协议版本与编辑版次)
   - [9.4 向后兼容保证](#94-向后兼容保证)
 - [10. 安全与隐私](#10-安全与隐私)
   - [10.1 Secret Sign 处理](#101-secret-sign-处理)
@@ -120,7 +130,7 @@ ICP 的核心产物是 `.ctx` 文件（语境注解文件，Contextual Annotatio
 
 本协议解决以下问题域：为任意媒体内容——包括文本（text）、图片（image）、视频（video）、音频（audio）——添加结构化语义注解，使内容的语义信息、意图、语境和反应能够以机器可读的格式被描述、传输和处理。
 
-本规范的版本标识为 `icp-ctx-file/2025-10-25`。
+本规范的协议线版本标识为 `icp-ctx-file/1.0`（首发定稿版次 `2025-10-25`）。
 
 核心设计理念：
 
@@ -192,6 +202,8 @@ ICP 的核心产物是 `.ctx` 文件（语境注解文件，Contextual Annotatio
 | `meta` | `Meta` | MUST | 元数据块，包含版本、标识符、时间戳等文件级信息。 |
 | `source` | `Source` | MUST | 原始内容描述块，描述被注解的原始媒体内容及其模式。 |
 | `annotations` | `array<Annotation>` | MUST | 注解数组，包含零个或多个 `Annotation` 对象。 |
+| `skills_bridge` | `array<SkillBridgeEntry>` | OPTIONAL | 互补协议技能桥接槽位（`protocol: "mcp" \| "google-a2a" \| "openapi" \| "ssp"`）。 |
+| `concepts` | `array<ConceptEntry>` | OPTIONAL | JSON-LD 领域知识概念链接槽位（包含必填 `uri` 引用）。 |
 
 对于任意合法的 CTX_File JSON 实例，执行序列化（serialize）再反序列化（deserialize）MUST 产生与原始对象深度等价（deep equal）的结果。
 
@@ -203,7 +215,7 @@ ICP 的核心产物是 `.ctx` 文件（语境注解文件，Contextual Annotatio
 
 | 字段名 | 类型 | 描述 |
 |---|---|---|
-| `version` | `string` | 协议版本标识符。MUST 为有效的版本字符串，例如 `"icp-ctx-file/2025-10-25"`。 |
+| `version` | `string` | 协议版本标识符。MUST 采用两段式版本 `"icp-ctx-file/1.0"`（兼容简写 `"1.0"`）；主版本不等于 `1` 时 MUST 以 `E_ICP_VERSION_INCOMPATIBLE` 拒绝。 |
 | `id` | `string` | CTX_File 唯一标识符（Unique Identifier）。在同一系统内 MUST 唯一。 |
 | `created` | `string (date-time)` | 文件创建时间戳。MUST 使用 RFC 3339 格式，例如 `"2025-10-25T10:00:00Z"`。 |
 
@@ -212,17 +224,17 @@ ICP 的核心产物是 `.ctx` 文件（语境注解文件，Contextual Annotatio
 | 字段名 | 类型 | 描述 |
 |---|---|---|
 | `locale` | `string` | 文档主语言的 BCP-47 语言标签（Language Tag），例如 `"zh-CN"`、`"en-US"`。 |
-| `schema` | `string` | Schema 版本的 URI 引用，例如 `"icp://schemas/ctx-file/2025-10-25"`。 |
+| `schema` | `string` | Schema 版本的 URI 引用，例如 `"icp://schemas/ctx-file/1.0"`。 |
 
 #### 示例
 
 ```json
 {
-  "version": "icp-ctx-file/2025-10-25",
+  "version": "icp-ctx-file/1.0",
   "id": "ctx-a1b2c3d4",
   "created": "2025-10-25T10:00:00Z",
   "locale": "zh-CN",
-  "schema": "icp://schemas/ctx-file/2025-10-25"
+  "schema": "icp://schemas/ctx-file/1.0"
 }
 ```
 
@@ -234,14 +246,14 @@ ICP 的核心产物是 `.ctx` 文件（语境注解文件，Contextual Annotatio
 
 | 字段名 | 类型 | 描述 |
 |---|---|---|
-| `mode` | `string (enum)` | 原始内容模式（Source Mode）。枚举值：`"inline"`（内联）、`"sidecar"`（旁注）、`"bundled"`（捆绑）。 |
+| `mode` | `string (enum)` | 原始内容模式（Source Mode）。规范枚举值：`"inline"`（内联，等价别名 `"embedded"`）、`"sidecar"`（旁注，等价别名 `"detached"`）、`"bundled"`（捆绑，等价别名 `"standalone"`）。 |
 | `type` | `string` | 原始内容的 MIME 类型（Media Type），例如 `"text/markdown"`、`"image/png"`、`"video/mp4"`、`"audio/mp3"`。 |
 
 #### 可选字段
 
 | 字段名 | 类型 | 描述 |
 |---|---|---|
-| `checksum` | `string` | 原始文件的 MD5 哈希值，用于完整性验证（Integrity Verification）。 |
+| `checksum` | `string` | 原始内容摘要（规范格式 `sha256:<64-hex>`，向后兼容 32 位十六进制 MD5），用于完整性漂移检测（Integrity Verification）；不匹配时返回 `E_ICP_CHECKSUM_MISMATCH`。 |
 | `content` | `string` | 原始内容。文本内容直接存储为字符串；二进制内容（图片、视频、音频）MUST 使用 Base64 编码。 |
 | `filename` | `string` | 原始文件名，用于人类可读性（Human Readability）。 |
 
@@ -270,7 +282,7 @@ ICP 的核心产物是 `.ctx` 文件（语境注解文件，Contextual Annotatio
 ```json
 {
   "meta": {
-    "version": "icp-ctx-file/2025-10-25",
+    "version": "icp-ctx-file/1.0",
     "id": "ctx-sidecar-001",
     "created": "2025-10-25T10:00:00Z"
   },
@@ -289,7 +301,7 @@ ICP 的核心产物是 `.ctx` 文件（语境注解文件，Contextual Annotatio
 ```json
 {
   "meta": {
-    "version": "icp-ctx-file/2025-10-25",
+    "version": "icp-ctx-file/1.0",
     "id": "ctx-inline-001",
     "created": "2025-10-25T10:00:00Z"
   },
@@ -307,7 +319,7 @@ ICP 的核心产物是 `.ctx` 文件（语境注解文件，Contextual Annotatio
 ```json
 {
   "meta": {
-    "version": "icp-ctx-file/2025-10-25",
+    "version": "icp-ctx-file/1.0",
     "id": "ctx-bundled-001",
     "created": "2025-10-25T10:00:00Z"
   },
@@ -433,13 +445,15 @@ ICP 的核心产物是 `.ctx` 文件（语境注解文件，Contextual Annotatio
 
 | 字段名 | 类型 | 描述 |
 |---|---|---|
-| `participants` | `array<contextValue>` | 参与者数组。每个元素描述一个参与者。 |
+| `participants` | `array<Participant \| contextValue>` | 参与者数组。每个元素既可为结构化 `Participant`（`{ id, role, name? }`），也可为 `contextValue`。 |
 | `memory` | `array<contextValue>` | 记忆数组。每个元素描述注解基于什么记忆。 |
 | `situation` | `array<contextValue>` | 情境数组。每个元素描述在什么情境下。 |
 | `subtext` | `array<contextValue>` | 潜台词数组。每个元素描述言外之意或隐含信息。 |
 | `culture` | `array<contextValue>` | 文化数组。每个元素描述在什么文化背景下。 |
 | `references` | `array<contextValue>` | 引用数组。每个元素提供相关参考资料。 |
 | `reactions` | `array<Reaction>` | 反应数组。每个元素是一个 Reaction 对象，在注解显示时触发。 |
+| `skills_bridge` | `array<SkillBridgeEntry>` | 注解级互补协议技能桥接引用（可选）。 |
+| `concepts` | `array<ConceptEntry>` | 注解级 JSON-LD 概念引用（可选）。 |
 
 所有 context 子字段均为 OPTIONAL。一个注解 MAY 拥有仅包含 `participants` 的 context，或仅包含 `reactions` 的 context，或任意组合。
 
@@ -701,7 +715,9 @@ ICP 的核心产物是 `.ctx` 文件（语境注解文件，Contextual Annotatio
 | 字段名 | 类型 | 必填 | 描述 |
 |---|---|---|---|
 | `scope` | `string` | MUST | 固定值 `"annotation"`。 |
-| `ref` | `string` | MUST | 目标注解的 `id`。MUST 引用同一 CTX_File 内存在的 Annotation.id。 |
+| `ref` | `string` | MUST | 目标注解的 `id`。MUST 引用同一 CTX_File 内存在的 `Annotation.id`。 |
+
+**有向引用环检测约束**：`Anchor.scope = "annotation"` 链与 `context` 各语境字段中的注解引用锚点 MUST 构成有向无环图（DAG）。若检测到自环或跨节点有向环（如 `A → B → A`），解析校验器 MUST 拒绝该 `.ctx` 文件并返回错误码 `E_ICP_ANCHOR_CYCLE`；若 `ref` 指向不存在的 `Annotation.id`，MUST 返回 `E_ICP_ANCHOR_REF_NOT_FOUND`。
 
 #### 示例
 
@@ -1628,7 +1644,7 @@ Inline 模式下，注解同时以两种形式存在：
 ```json
 {
   "meta": {
-    "version": "icp-ctx-file/2025-10-25",
+    "version": "icp-ctx-file/1.0",
     "id": "ctx-inline-example",
     "created": "2025-10-25T10:00:00Z"
   },
@@ -1703,7 +1719,7 @@ Sidecar 模式 RECOMMENDED 用于以下场景：
 ```json
 {
   "meta": {
-    "version": "icp-ctx-file/2025-10-25",
+    "version": "icp-ctx-file/1.0",
     "id": "ctx-sidecar-photo",
     "created": "2025-10-25T10:00:00Z"
   },
@@ -1752,7 +1768,7 @@ Bundled 模式 RECOMMENDED 用于以下场景：
 ```json
 {
   "meta": {
-    "version": "icp-ctx-file/2025-10-25",
+    "version": "icp-ctx-file/1.0",
     "id": "ctx-bundled-audio",
     "created": "2025-10-25T10:00:00Z"
   },
@@ -1909,43 +1925,40 @@ ICP 使用命名空间前缀（Namespace Prefix）区分内置关键词和第三
 
 当终端遇到未知的反应类型（`reaction.type` 值既非内置类型，也非已注册的自定义类型）时，MUST 跳过该反应并继续处理 `reactions[]` 数组中的后续反应。终端 SHOULD 记录一条警告日志。
 
-#### 9.2.3 未知字段处理
+#### 9.2.3 扩展字段保留与核心字段约束
 
-当解析器遇到 CTX_File 中未在本规范或 schema.json 中定义的字段时，MUST 忽略该字段并继续处理。解析器 MUST NOT 因遇到未知字段而拒绝 CTX_File。
+当解析器遇到符合 `vendor:name` 命名空间约定（`^[a-z0-9-]+:[a-z0-9_]+$`）的扩展属性时，MUST 原样保留（Preserve）该字段并继续处理，确保往返转换不丢失扩展载荷。对于未带命名空间前缀的未知核心字段，严格校验器 MUST 返回 `E_ICP_UNKNOWN_PROPERTY`，以锁定 `meta.created` 与 `source.type` 等规范字段名不被误写。
 
-此规则确保旧版本解析器能够处理包含新版本字段的 CTX_File，实现向前兼容性（Forward Compatibility）。
+### 9.3 协议版本与编辑版次
 
-### 9.3 语义版本
-
-`meta.version` 字段使用语义版本（Semantic Versioning）格式标识协议版本。
+`meta.version` 字段采用两段式协议线版本（Two-Segment Protocol Version）标识互操作契约，不设 `patch` 段；文档勘误通过编辑版次日期（如 `2025-10-25`）独立演进。
 
 #### 9.3.1 版本格式
 
-版本字符串遵循 `major.minor.patch` 格式：
+规范版本字符串格式为 `icp-ctx-file/MAJOR.MINOR`（解析器同时兼容两段简写 `MAJOR.MINOR`，当前基线为 `icp-ctx-file/1.0`）：
 
 | 组成部分 | 类型 | 描述 |
 |---|---|---|
-| `major` | `integer` | 主版本号。变更表示破坏性格式变更（Breaking Change），不同主版本之间不保证兼容。 |
-| `minor` | `integer` | 次版本号。变更表示向后兼容的功能添加（Backward-compatible Addition）。 |
-| `patch` | `integer` | 修订号。变更表示向后兼容的修正（Correction），如文档勘误、示例修正。 |
+| `MAJOR` | `integer` | 主版本号。变更表示破坏性线格式变更（Breaking Change），不同主版本之间不保证互操作，解析器 MUST 以 `E_ICP_VERSION_INCOMPATIBLE` 拒绝不支持的主版本。 |
+| `MINOR` | `integer` | 次版本号。变更表示向后兼容增补（Backward-compatible Addition），同一主版本内较高次版本向后兼容至 `MAJOR.0`。 |
 
 #### 9.3.2 版本变更规则
 
-| 变更类型 | 版本号变更 | 示例 |
+| 变更类型 | 版本与版次变更 | 示例 |
 |---|---|---|
-| 新增必填字段、删除字段、修改字段类型 | major 递增 | `1.0.0` → `2.0.0` |
-| 新增可选字段、新增内置 signs/whatis 关键词 | minor 递增 | `1.0.0` → `1.1.0` |
-| 文档勘误、示例修正、描述文本修改 | patch 递增 | `1.0.0` → `1.0.1` |
+| 新增必填字段、删除字段、修改字段类型、移除内置关键词 | `MAJOR` 递增，`MINOR` 归零 | `icp-ctx-file/1.0` → `icp-ctx-file/2.0` |
+| 新增可选字段、新增可选渲染组件或反应类型 | `MINOR` 递增 | `icp-ctx-file/1.0` → `icp-ctx-file/1.1` |
+| 纯文字勘误、示例修正、表述澄清（不触及线格式） | 保持 `icp-ctx-file/1.0` 不变，更新编辑版次日期 | 版次 `2025-10-25` |
 
 ### 9.4 向后兼容保证
 
-版本 N.x 产生的 CTX_File MUST 可被任何支持版本 N.y（y ≥ x）的解析器正确解析。即在同一主版本号内，较新的解析器 MUST 能够处理较旧版本产生的 CTX_File。
+版本 `1.x` 产生的 CTX_File MUST 可被任何支持版本 `1.y`（`y ≥ x`）的解析器正确解析。即在同一主版本号内，较新的解析器 MUST 能够处理较旧版本产生的 CTX_File。
 
 具体而言：
 
-- 支持版本 `1.2.0` 的解析器 MUST 能够解析版本 `1.0.0` 和 `1.1.0` 产生的 CTX_File。
-- 支持版本 `1.0.0` 的解析器在遇到版本 `1.1.0` 新增的可选字段时，MUST 忽略未知字段并继续处理（依据 [9.2.3](#923-未知字段处理) 规则）。
-- 不同主版本号（如 `1.x` 和 `2.x`）之间不保证兼容性。解析器遇到不支持的主版本号时，SHOULD 拒绝并报告版本不兼容错误。
+- 支持版本 `icp-ctx-file/1.2` 的解析器 MUST 能够解析版本 `icp-ctx-file/1.0` 和 `icp-ctx-file/1.1` 产生的 CTX_File。
+- 支持版本 `icp-ctx-file/1.0` 的解析器在遇到更高 `1.x` 版本或第三方 `vendor:name` 扩展字段时，MUST 保留扩展字段并继续处理。
+- 不同主版本号（如 `1.x` 和 `2.x`）之间不保证兼容性。解析器遇到 `MAJOR != 1` 时，MUST 拒绝并返回 `E_ICP_VERSION_INCOMPATIBLE`。
 
 
 ---
@@ -2191,11 +2204,11 @@ checksum MUST NOT 被视为安全机制（Security Mechanism）。MD5 算法存�
 ```json
 {
   "meta": {
-    "version": "icp-ctx-file/2025-10-25",
+    "version": "icp-ctx-file/1.0",
     "id": "ctx-text-sidecar-001",
     "created": "2025-10-25T10:00:00Z",
     "locale": "zh-CN",
-    "schema": "icp://schemas/ctx-file/2025-10-25"
+    "schema": "icp://schemas/ctx-file/1.0"
   },
   "source": {
     "mode": "sidecar",
@@ -2292,7 +2305,7 @@ checksum MUST NOT 被视为安全机制（Security Mechanism）。MD5 算法存�
 ```json
 {
   "meta": {
-    "version": "icp-ctx-file/2025-10-25",
+    "version": "icp-ctx-file/1.0",
     "id": "ctx-image-sidecar-001",
     "created": "2025-10-25T14:30:00Z",
     "locale": "zh-CN"
@@ -2385,7 +2398,7 @@ checksum MUST NOT 被视为安全机制（Security Mechanism）。MD5 算法存�
 ```json
 {
   "meta": {
-    "version": "icp-ctx-file/2025-10-25",
+    "version": "icp-ctx-file/1.0",
     "id": "ctx-video-sidecar-001",
     "created": "2025-10-25T16:00:00Z",
     "locale": "zh-CN"
@@ -2499,7 +2512,7 @@ checksum MUST NOT 被视为安全机制（Security Mechanism）。MD5 算法存�
 ```json
 {
   "meta": {
-    "version": "icp-ctx-file/2025-10-25",
+    "version": "icp-ctx-file/1.0",
     "id": "ctx-audio-sidecar-001",
     "created": "2025-10-25T18:00:00Z",
     "locale": "zh-CN"
@@ -2599,7 +2612,7 @@ checksum MUST NOT 被视为安全机制（Security Mechanism）。MD5 算法存�
 ```json
 {
   "meta": {
-    "version": "icp-ctx-file/2025-10-25",
+    "version": "icp-ctx-file/1.0",
     "id": "ctx-inline-full-001",
     "created": "2025-10-25T09:00:00Z",
     "locale": "zh-CN"
@@ -2665,7 +2678,7 @@ checksum MUST NOT 被视为安全机制（Security Mechanism）。MD5 算法存�
 ```json
 {
   "meta": {
-    "version": "icp-ctx-file/2025-10-25",
+    "version": "icp-ctx-file/1.0",
     "id": "ctx-bundled-image-001",
     "created": "2025-10-25T11:00:00Z",
     "locale": "zh-CN"
@@ -2731,7 +2744,7 @@ checksum MUST NOT 被视为安全机制（Security Mechanism）。MD5 算法存�
 ```json
 {
   "meta": {
-    "version": "icp-ctx-file/2025-10-25",
+    "version": "icp-ctx-file/1.0",
     "id": "ctx-context-full-001",
     "created": "2025-10-25T15:00:00Z",
     "locale": "zh-CN"
@@ -2819,7 +2832,7 @@ checksum MUST NOT 被视为安全机制（Security Mechanism）。MD5 算法存�
 ```json
 {
   "meta": {
-    "version": "icp-ctx-file/2025-10-25",
+    "version": "icp-ctx-file/1.0",
     "id": "ctx-meta-annotation-001",
     "created": "2025-10-25T20:00:00Z",
     "locale": "zh-CN"

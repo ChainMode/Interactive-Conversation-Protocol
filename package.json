@@ -1,0 +1,32 @@
+{
+  "name": "@ifay/icp",
+  "version": "1.0.0",
+  "description": "Zero-dependency ICP 1.0 (.ctx) reference validator, mode converter, inline markup round-trip parser/pretty-printer, reaction safety gate, and terminal degradation library.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./src/index.mjs",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.mjs"
+    },
+    "./validator": "./src/validator.mjs",
+    "./modes": "./src/modes.mjs",
+    "./inline": "./src/inline.mjs",
+    "./security": "./src/security.mjs",
+    "./degrade": "./src/degrade.mjs"
+  },
+  "files": [
+    "src",
+    "schemas",
+    "vectors",
+    "schema"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
+  }
+}
