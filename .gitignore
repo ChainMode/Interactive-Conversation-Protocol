@@ -10,6 +10,11 @@
 !/SECURITY.md
 !/CONTRIBUTING.md
 !/CODE_OF_CONDUCT.md
+!/.github/
+/.github/*
+!/.github/workflows/
+/.github/workflows/*
+!/.github/workflows/docs-ci.yml
 # 协议规范性工件与零依赖参考实现 = 公开可验证产物
 !/schema/
 !/schemas/
