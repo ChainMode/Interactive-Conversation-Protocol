@@ -1,5 +1,12 @@
 # Interactive Conversation Protocol (ICP)
 
+[![Docs CI](https://github.com/ChainMode/Interactive-Conversation-Protocol/actions/workflows/docs-ci.yml/badge.svg)](https://github.com/ChainMode/Interactive-Conversation-Protocol/actions/workflows/docs-ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Docs: CC BY 4.0](https://img.shields.io/badge/Docs-CC%20BY%204.0-lightgrey.svg)](./LICENSE-DOCS)
+[![Website: ifay.ai](https://img.shields.io/badge/Website-ifay.ai-blue)](https://ifay.ai)
+
+**Interactive Conversation Protocol (`icp-ctx-file/1.0`)** is the open multimodal context-annotation specification in the **iFay** protocol suite, attaching machine-readable semantics, intent anchors, and default-deny governed interactive reactions across text, image, audio, and video exchanges between a **Human Prime** and **Fay** (`iFay + coFay`).
+
 **Interactive Conversation Protocol（交互式对话协议，ICP）** 是 iFay 协议族中面向**人类原型（Human Prime）↔ Fay（iFay + coFay）**交互层的开放语境注解规范，定义如何为文本、图片、视频与音频等多模态内容附加机器可读的结构化语义、语境、意图与交互反应。
 
 ## 规范冻结基线（`icp-ctx-file/1.0`，Edition `2025-10-25`）

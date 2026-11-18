@@ -15,6 +15,12 @@
 !/.github/workflows/
 /.github/workflows/*
 !/.github/workflows/docs-ci.yml
+!/.github/ISSUE_TEMPLATE/
+/.github/ISSUE_TEMPLATE/*
+!/.github/ISSUE_TEMPLATE/bug_report.yml
+!/.github/ISSUE_TEMPLATE/feature_request.yml
+!/.github/ISSUE_TEMPLATE/config.yml
+!/.github/pull_request_template.md
 # 协议规范性工件与零依赖参考实现 = 公开可验证产物
 !/schema/
 !/schemas/
