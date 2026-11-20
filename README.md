@@ -40,10 +40,42 @@
 - `src/`：零外部依赖 Node.js ESM 参考实现（`validator`、`modes`、`inline`、`security`、`degrade`）
 - `tests/`：单元、属性往返与一致性向量自动化测试套件
 
-## 快速验证
+## 30-Second Runnable Quickstart (`icp-adaptive` & `icp-render`)
 
 ```bash
+# Render the same .ctx Conception Annotation payload across desktop-web, mobile-compact,
+# terminal-cli, and voice-audio while verifying CAP 1.0 Default-Deny safety
+npm run demo
+
+# Generate a standalone interactive HTML5 multi-endpoint preview page
+node src/cli.mjs preview --out /tmp/icp-preview.html
+
+# Run the full 65-test verification & conformance suite
 npm test
+```
+
+## Multi-Device Adaptive Integration (`@ifay/icp/adaptive`)
+
+```js
+import {
+  renderAllAdaptiveTargets,
+  renderStandaloneHtmlPreview,
+  dispatchAdaptiveAction,
+} from "@ifay/icp";
+
+// Render identical semantics & secret masking across all 4 endpoints (0 side effects executed)
+const suite = renderAllAdaptiveTargets(ctxDocument);
+const desktopHtml = suite.targets["desktop-web"].html;
+const mobileCard  = suite.targets["mobile-compact"].html;
+const cliOutput   = suite.targets["terminal-cli"].output;
+const voicePrompt = suite.targets["voice-audio"].spokenScript;
+
+// Route desktop click, CLI number (1), or single-word voice command ("approve") through CAP Gate
+const decision = dispatchAdaptiveAction(ctxDocument, "approve", {
+  consent: { granted: true, actor: "human_prime", consentId: "c_01", singleUse: true },
+  provenance: { verified: true, signerFayId: "ifay_guardian234567ab" },
+});
+// -> decision.decision === "delegate_to_cap", decision.capDelegation.protocol === "cap/1.0"
 ```
 
 ## License

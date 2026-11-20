@@ -15,7 +15,11 @@
     "./modes": "./src/modes.mjs",
     "./inline": "./src/inline.mjs",
     "./security": "./src/security.mjs",
-    "./degrade": "./src/degrade.mjs"
+    "./degrade": "./src/degrade.mjs",
+    "./adaptive": "./src/adaptive.mjs"
+  },
+  "bin": {
+    "icp-render": "./src/cli.mjs"
   },
   "files": [
     "src",
@@ -27,6 +31,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
+    "demo": "node src/cli.mjs demo",
     "test": "node --test tests/*.test.mjs"
   }
 }

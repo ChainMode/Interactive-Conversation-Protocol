@@ -37,3 +37,17 @@ export {
   degradeToPlainText,
   renderTerminalDocument,
 } from "./degrade.mjs";
+
+export {
+  ADAPTIVE_TARGETS,
+  extractAdaptiveSemanticModel,
+  renderAdaptiveCtx,
+  renderAllAdaptiveTargets,
+  dispatchAdaptiveAction,
+  renderStandaloneHtmlPreview,
+} from "./adaptive.mjs";
+
+export {
+  createSampleExpenseApprovalCtx,
+  runIcpAdaptiveDemo,
+} from "./demo.mjs";

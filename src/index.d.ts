@@ -201,3 +201,49 @@ export declare function renderTerminalDocument(
   plainText: string;
   annotations: Record<string, unknown>[];
 };
+
+export type AdaptiveTarget =
+  | "desktop-web"
+  | "mobile-compact"
+  | "terminal-cli"
+  | "voice-audio";
+
+export declare const ADAPTIVE_TARGETS: readonly [
+  "desktop-web",
+  "mobile-compact",
+  "terminal-cli",
+  "voice-audio",
+];
+
+export declare function extractAdaptiveSemanticModel(
+  ctx: Record<string, unknown>,
+  options?: { mask?: string; revealedIds?: string[]; externalContent?: string }
+): Record<string, unknown>;
+
+export declare function renderAdaptiveCtx(
+  ctx: Record<string, unknown>,
+  target: AdaptiveTarget,
+  options?: { mask?: string; revealedIds?: string[]; externalContent?: string }
+): Record<string, unknown>;
+
+export declare function renderAllAdaptiveTargets(
+  ctx: Record<string, unknown>,
+  options?: { mask?: string; revealedIds?: string[]; externalContent?: string }
+): {
+  semanticModel: Record<string, unknown>;
+  targets: Record<AdaptiveTarget, Record<string, unknown>>;
+};
+
+export declare function dispatchAdaptiveAction(
+  ctx: Record<string, unknown>,
+  selector: string | number,
+  options?: Record<string, unknown>
+): ReactionGateResult;
+
+export declare function renderStandaloneHtmlPreview(
+  ctx: Record<string, unknown>,
+  options?: { mask?: string; revealedIds?: string[]; externalContent?: string }
+): string;
+
+export declare function createSampleExpenseApprovalCtx(): Record<string, unknown>;
+export declare function runIcpAdaptiveDemo(options?: { silent?: boolean }): Record<string, unknown>;
